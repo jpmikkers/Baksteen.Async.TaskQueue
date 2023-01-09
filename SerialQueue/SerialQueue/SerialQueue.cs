@@ -20,7 +20,10 @@ namespace Threading
 
         public Task Enqueue(Func<Task> asyncAction)
         {
-            return Enqueue(async () => { await asyncAction(); return true; });
+            return Enqueue(async () => { 
+                await asyncAction().ConfigureAwait(false);
+                return true; 
+            });
         }
 
         public async Task<T> Enqueue<T>(Func<Task<T>> asyncFunction)
