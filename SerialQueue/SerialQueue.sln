@@ -2,9 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialQueue", "SerialQueue\SerialQueue.csproj", "{7A22FD7E-30DD-49AB-AF53-A5C2BCF6D9E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerialQueue", "SerialQueue\SerialQueue.csproj", "{7A22FD7E-30DD-49AB-AF53-A5C2BCF6D9E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{BB567713-F6CE-4F14-96ED-DAD5BBDE224B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{BB567713-F6CE-4F14-96ED-DAD5BBDE224B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

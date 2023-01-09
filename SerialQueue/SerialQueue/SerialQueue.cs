@@ -1,82 +1,41 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Threading
 {
     public class SerialQueue
     {
-        readonly object _locker = new();
-        readonly WeakReference<Task> _lastTask = new(default!);
+        private Task _previousTask = Task.CompletedTask;
 
         public Task Enqueue(Action action)
         {
-            return Enqueue<bool>(() =>
-            {
-                action();
-                return true;
-            });
+            return Enqueue(() => { action(); return true; });
         }
 
         public Task<T> Enqueue<T>(Func<T> function)
         {
-            lock (_locker)
-            {
-                Task<T> resultTask;
-                
-                if (_lastTask.TryGetTarget(out var lastTask))
-                {
-                    resultTask = lastTask.ContinueWith(_ => function(), TaskContinuationOptions.ExecuteSynchronously);
-                }
-                else
-                {
-                    resultTask = Task.Run(function);
-                }
-
-                _lastTask.SetTarget(resultTask);
-                
-                return resultTask;
-            }
+            return Enqueue(() => Task.Run(function));
         }
 
         public Task Enqueue(Func<Task> asyncAction)
         {
-            lock (_locker)
-            {
-                Task resultTask;
-                
-                if (_lastTask.TryGetTarget(out var lastTask))
-                {
-                    resultTask = lastTask.ContinueWith(_ => asyncAction(), TaskContinuationOptions.ExecuteSynchronously).Unwrap();
-                }
-                else
-                {
-                    resultTask = Task.Run(asyncAction);
-                }
-
-                _lastTask.SetTarget(resultTask);
-                
-                return resultTask;
-            }
+            return Enqueue(async () => { await asyncAction(); return true; });
         }
 
-        public Task<T> Enqueue<T>(Func<Task<T>> asyncFunction)
+        public async Task<T> Enqueue<T>(Func<Task<T>> asyncFunction)
         {
-            lock (_locker)
+            // see https://devblogs.microsoft.com/premier-developer/the-danger-of-taskcompletionsourcet-class/
+            var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            // get predecessor and wait until it's done. Also atomically swap in our own completion task.
+            await Interlocked.Exchange(ref _previousTask, tcs.Task).ConfigureAwait(false);
+            try
             {
-                Task<T> resultTask;
-                
-                if (_lastTask.TryGetTarget(out var lastTask))
-                {
-                    resultTask = lastTask.ContinueWith(_ => asyncFunction(), TaskContinuationOptions.ExecuteSynchronously).Unwrap();
-                }
-                else
-                {
-                    resultTask = Task.Run(asyncFunction);
-                }
-
-                _lastTask.SetTarget(resultTask);
-                
-                return resultTask;
+                return await asyncFunction().ConfigureAwait(false);
+            }
+            finally
+            {
+                tcs.SetResult();
             }
         }
     }
