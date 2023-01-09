@@ -18,13 +18,16 @@ namespace Tests
 
             var list = new List<int>();
             var tasks = new List<Task>();
-            var range = Enumerable.Range(0, 100000);
+            var range = Enumerable.Range(0, 5);
 
             // Act
 
             foreach (var number in range)
             {
-                tasks.Add(Task.Factory.StartNew(() => list.Add(number), TaskCreationOptions.PreferFairness));
+                tasks.Add(Task.Factory.StartNew(() => {
+                    Thread.Sleep(500 - number * 100);
+                    lock(list) list.Add(number);
+                }, TaskCreationOptions.PreferFairness));
             }
 
             await Task.WhenAll(tasks);
@@ -42,13 +45,16 @@ namespace Tests
             var queue = new SerialQueue();
             var list = new List<int>();
             var tasks = new List<Task>();
-            var range = Enumerable.Range(0, 10000);
+            var range = Enumerable.Range(0, 5);
 
             // Act
 
             foreach (var number in range)
             {
-                tasks.Add(queue.Enqueue(() => list.Add(number)));
+                tasks.Add(queue.Enqueue(() => { 
+                    Thread.Sleep(500 - number*100); 
+                    lock(list) list.Add(number); 
+                }));
             }
 
             await Task.WhenAll(tasks);
@@ -65,13 +71,16 @@ namespace Tests
 
             var queue = new SerialQueue();
             var tasks = new List<Task<int>>();
-            var range = Enumerable.Range(0, 10000);
+            var range = Enumerable.Range(0, 5);
 
             // Act
 
             foreach (var number in range)
             {
-                tasks.Add(queue.Enqueue(() => number));
+                tasks.Add(queue.Enqueue(() => {
+                    Thread.Sleep(500 - number * 100);
+                    return number;
+                }));
             }
 
             await Task.WhenAll(tasks);
@@ -89,15 +98,15 @@ namespace Tests
             var queue = new SerialQueue();
             var list = new List<int>();
             var tasks = new List<Task>();
-            var range = Enumerable.Range(0, 5000);
+            var range = Enumerable.Range(0, 5);
 
             // Act
 
             foreach (var number in range)
             {
                 tasks.Add(queue.Enqueue(async () => {
-                    await Task.Delay(1);
-                    list.Add(number);
+                    await Task.Delay(500 - number * 100);
+                    lock(list) list.Add(number);
                 }));
             }
 
@@ -115,14 +124,14 @@ namespace Tests
 
             var queue = new SerialQueue();
             var tasks = new List<Task<int>>();
-            var range = Enumerable.Range(0, 5000);
+            var range = Enumerable.Range(0, 5);
 
             // Act
 
             foreach (var number in range)
             {
                 tasks.Add(queue.Enqueue(async () => {
-                    await Task.Delay(1);
+                    await Task.Delay(500 - number * 100);
                     return number;
                 }));
             }
@@ -142,7 +151,7 @@ namespace Tests
             var queue = new SerialQueue();
             var list = new List<int>();
             var tasks = new List<Task>();
-            var range = Enumerable.Range(0, 10000);
+            var range = Enumerable.Range(0, 100);
 
             // Act
 
@@ -150,27 +159,31 @@ namespace Tests
             {
                 if (number % 4 == 0)
                 {
-                    tasks.Add(queue.Enqueue(() => list.Add(number)));
+                    tasks.Add(queue.Enqueue(() => {
+                        Thread.Sleep(Random.Shared.Next(10));
+                        lock(list) list.Add(number);
+                    }));
                 }
                 else if (number % 3 == 0)
                 {
                     tasks.Add(queue.Enqueue(() => {
-                        list.Add(number);
+                        Thread.Sleep(Random.Shared.Next(10));
+                        lock(list) list.Add(number);
                         return number;
                     }));
                 }
                 else if (number % 2 == 0)
                 {
                     tasks.Add(queue.Enqueue(async () => {
-                        await Task.Delay(1);
-                        list.Add(number);
+                        await Task.Delay(Random.Shared.Next(10));
+                        lock(list) list.Add(number);
                     }));
                 }
                 else
                 {
                     tasks.Add(queue.Enqueue(async () => {
-                        await Task.Delay(1);
-                        list.Add(number);
+                        await Task.Delay(Random.Shared.Next(10));
+                        lock(list) list.Add(number);
                         return number;
                     }));
                 }
@@ -198,7 +211,7 @@ namespace Tests
             for (int i = 0; i < count; i++)
             {
                 Task.Run(() => {
-                    queue.Enqueue(() => list.Add(counter++));
+                    queue.Enqueue(() => { lock(list) list.Add(counter++); });
                 });
             }
 
