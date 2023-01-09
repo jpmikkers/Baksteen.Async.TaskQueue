@@ -3,28 +3,96 @@ Lightweight C# Task-based implementation of FIFO serial queues from ObjC, which 
 
 ### Interface
 
-    class SerialQueue {
-        Task Enqueue(Action action)
-        Task<T> Enqueue<T>(Func<T> function)
-        Task Enqueue(Func<Task> asyncAction)
-        Task<T> Enqueue<T>(Func<Task<T>> asyncFunction)
-    }
+```C#
+class SerialQueue {
+    Task Enqueue(Action action)
+    Task<T> Enqueue<T>(Func<T> function)
+    Task Enqueue(Func<Task> asyncAction)
+    Task<T> Enqueue<T>(Func<Task<T>> asyncFunction)
+}
+```
     
 ### Example
 
-    readonly SerialQueue queue = new SerialQueue();
+```C#
+readonly SerialQueue queue = new SerialQueue();
+
+async Task SomeAsyncMethod()
+{
+    // C# 5+
     
-    async Task SomeAsyncMethod()
-    {
-        // C# 5+
-        
-        await queue.Enqueue(SyncAction);
-        
-        var result = await queue.Enqueue(AsyncFunction);
+    await queue.Enqueue(SyncAction);
     
-        // Old approach
-        
-        queue.Enqueue(AsyncFunction).ContinueWith(t => {
-            var result = t.Result;
-        });
-    }
+    var result = await queue.Enqueue(AsyncFunction);
+    
+    // Old approach
+    
+    queue.Enqueue(AsyncFunction).ContinueWith(t => {
+        var result = t.Result;
+    });
+}
+```
+
+### Troubleshooting
+
+#### Deadlocks
+
+Nesting and awaiting `queue.Enqueue` leads to deadlock in the queue:
+
+```C#
+var queue = new SerialQueue();
+
+await queue.Enqueue(async () =>
+{
+  await queue.Enqueue(async () =>
+  {
+    // This code will never run because it waits until the first task executes,
+    // and first task awaits while this one finishes.
+    // Queue is locked.
+  });
+});
+```
+This particular case can be fixed by either not awaiting nested Enqueue or not putting nested task to queue at all, because it is already in the queue.
+
+Overall it is better to implement code not synced first, but later sync it in the upper layer that uses that code, or in a synced wrapper:
+
+```C#
+// Bad
+
+async Task Run()
+{
+  await FunctionA();
+  await FunctionB();
+  await FunctionC(); // deadlock
+}
+
+async Task FunctionA() => await queue.Enqueue(async () => { ... });
+
+async Task FunctionB() => await queue.Enqueue(async () => { ... });
+
+async Task FunctionC() => await queue.Enqueue(async () =>
+  await FunctionA();
+  ...
+  await FunctionB();
+});
+
+// Good
+
+async Task Run()
+{
+    await queue.Enqueue(FunctionA);
+    await queue.Enqueue(FunctionB);
+    await queue.Enqueue(FunctionC);
+}
+
+async Task FunctionA() { ... };
+
+async Task FunctionB() { ... };
+
+async Task FunctionC()
+{
+  await FunctionA();
+  ...
+  await FunctionB();
+};
+```
