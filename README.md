@@ -1,35 +1,29 @@
-# SerialQueue
-Lightweight C# Task-based implementation of FIFO serial queues from ObjC, which are often much better to use for synchronization rather than locks - they don't block caller's thread, and rather than creating new threads - they use thread pool.
+# Baksteen.Async.TaskQueue
+Lightweight C# async implementation of a FIFO execution queue. It is a fork of Gentlee's [SerialQueue](https://github.com/gentlee/SerialQueue), but in this case the implementation is fully async based and maybe a bit easier to understand.
 
 ### Interface
 
 ```C#
-class SerialQueue {
-    Task Enqueue(Action action)
-    Task<T> Enqueue<T>(Func<T> function)
-    Task Enqueue(Func<Task> asyncAction)
-    Task<T> Enqueue<T>(Func<Task<T>> asyncFunction)
+using Baksteen.Async;
+
+class TaskQueue {
+    Task Enqueue(Action action);
+    Task<T> Enqueue<T>(Func<T> function);
+    Task Enqueue(Func<Task> asyncAction);
+    Task<T> Enqueue<T>(Func<Task<T>> asyncFunction);
 }
 ```
     
 ### Example
 
 ```C#
-readonly SerialQueue queue = new SerialQueue();
+readonly TaskQueue queue = new TaskQueue();
 
 async Task SomeAsyncMethod()
 {
-    // C# 5+
-    
-    await queue.Enqueue(SyncAction);
+    await queue.Enqueue(AsyncAction);
     
     var result = await queue.Enqueue(AsyncFunction);
-    
-    // Old approach
-    
-    queue.Enqueue(AsyncFunction).ContinueWith(t => {
-        var result = t.Result;
-    });
 }
 ```
 
@@ -40,7 +34,7 @@ async Task SomeAsyncMethod()
 Nesting and awaiting `queue.Enqueue` leads to deadlock in the queue:
 
 ```C#
-var queue = new SerialQueue();
+var queue = new TaskQueue();
 
 await queue.Enqueue(async () =>
 {
@@ -53,46 +47,4 @@ await queue.Enqueue(async () =>
 });
 ```
 This particular case can be fixed by either not awaiting nested Enqueue or not putting nested task to queue at all, because it is already in the queue.
-
-Overall it is better to implement code not synced first, but later sync it in the upper layer that uses that code, or in a synced wrapper:
-
-```C#
-// Bad
-
-async Task Run()
-{
-  await FunctionA();
-  await FunctionB();
-  await FunctionC(); // deadlock
-}
-
-async Task FunctionA() => await queue.Enqueue(async () => { ... });
-
-async Task FunctionB() => await queue.Enqueue(async () => { ... });
-
-async Task FunctionC() => await queue.Enqueue(async () =>
-  await FunctionA();
-  ...
-  await FunctionB();
-});
-
-// Good
-
-async Task Run()
-{
-    await queue.Enqueue(FunctionA);
-    await queue.Enqueue(FunctionB);
-    await queue.Enqueue(FunctionC);
-}
-
-async Task FunctionA() { ... };
-
-async Task FunctionB() { ... };
-
-async Task FunctionC()
-{
-  await FunctionA();
-  ...
-  await FunctionB();
-};
-```
+Overall it is better to implement code not synced first, but later sync it in the upper layer that uses that code, or in a synced wrapper.
