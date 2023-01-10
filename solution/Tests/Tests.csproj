@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SerialQueue\SerialQueue.csproj" />
+    <ProjectReference Include="..\Baksteen.Async.TaskQueue\Baksteen.Async.TaskQueue.csproj" />
   </ItemGroup>
 
 </Project>

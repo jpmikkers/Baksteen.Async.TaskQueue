@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Authors>Danilov Alexander</Authors>
-    <AssemblyTitle>SerialQueue</AssemblyTitle>
+    <Authors>JP Mikkers,Danilov Alexander</Authors>
+    <AssemblyTitle>Baksteen.Async.TaskQueue</AssemblyTitle>
   </PropertyGroup>
 
 </Project>
