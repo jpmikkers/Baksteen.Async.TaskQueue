@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>Jean-Paul Mikkers,Danilov Alexander</Authors>
     <AssemblyTitle>Baksteen.Async.TaskQueue</AssemblyTitle>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Baksteen.Async.TaskQueue</Title>
-    <Company>Baksteen</Company>
+    <Company>jpmikkers</Company>
     <Copyright>Jean-Paul Mikkers</Copyright>
     <PackageProjectUrl>https://github.com/jpmikkers/Baksteen.Async.TaskQueue</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jpmikkers/Baksteen.Async.TaskQueue</RepositoryUrl>
