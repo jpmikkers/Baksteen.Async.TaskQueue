@@ -1,5 +1,6 @@
 # Baksteen.Async.TaskQueue
-Lightweight C# async implementation of a FIFO execution queue. It is a fork of Gentlee's [SerialQueue](https://github.com/gentlee/SerialQueue), but in this case the implementation is fully async based and maybe a bit easier to understand.
+TaskQueue is a lightweight C# async implementation of a FIFO execution queue. It enables async queueing of async work that will be executed in guaranteed first-in first-out (FIFO) order.
+It is a fork of Gentlee's [SerialQueue](https://github.com/gentlee/SerialQueue), but in this case the implementation is fully async based and maybe a bit easier to understand.
 
 ### Interface
 
