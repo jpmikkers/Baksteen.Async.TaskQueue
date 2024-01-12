@@ -1,34 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <Authors>Jean-Paul Mikkers,Danilov Alexander</Authors>
-    <AssemblyTitle>Baksteen.Async.TaskQueue</AssemblyTitle>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>Baksteen.Async.TaskQueue</Title>
-    <Company>jpmikkers</Company>
-    <Copyright>Jean-Paul Mikkers</Copyright>
-    <PackageProjectUrl>https://github.com/jpmikkers/Baksteen.Async.TaskQueue</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/jpmikkers/Baksteen.Async.TaskQueue</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Description>TaskQueue enables async queueing of async workloads, with guaranteed FIFO ordering.</Description>
-    <PackageTags>queue;fifo;fifo-queue;async;task;tasks;dotnet;dotnet-core;csharp;taskscheduler</PackageTags>
-    <PackageReleaseNotes>First release.</PackageReleaseNotes>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Authors>Jean-Paul Mikkers,Danilov Alexander</Authors>
+		<AssemblyTitle>Baksteen.Async.TaskQueue</AssemblyTitle>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Baksteen.Async.TaskQueue</Title>
+		<Company>jpmikkers</Company>
+		<Copyright>Jean-Paul Mikkers</Copyright>
+		<Version>1.0.1</Version>
+		<PackageProjectUrl>https://github.com/jpmikkers/Baksteen.Async.TaskQueue</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/jpmikkers/Baksteen.Async.TaskQueue</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Description>TaskQueue enables async queueing of async workloads, with guaranteed FIFO ordering.</Description>
+		<PackageTags>queue;fifo;fifo-queue;async;task;tasks;dotnet;dotnet-core;csharp;taskscheduler</PackageTags>
+		<PackageReleaseNotes>First release.</PackageReleaseNotes>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+		<WarningLevel>7</WarningLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
+		<WarningLevel>7</WarningLevel>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
